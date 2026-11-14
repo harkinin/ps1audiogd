@@ -1,0 +1,8 @@
+[configuration]
+entry_symbol = "ps1_audio_effect_library_init"
+compatibility_minimum = "4.7"
+reloadable = true
+
+[libraries]
+windows.debug.x86_64 = "res://addons/ps1_audio_effect/bin/ps1_audio_effect.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/ps1_audio_effect/bin/ps1_audio_effect.windows.template_release.x86_64.dll"
