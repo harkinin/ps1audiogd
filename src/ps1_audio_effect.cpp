@@ -1,5 +1,7 @@
 #include "ps1_audio_effect.h"
 
+#include <algorithm>
+
 namespace godot {
 
 void PS1AudioEffectInstance::_bind_methods() {
