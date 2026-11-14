@@ -32,17 +32,10 @@ jobs:
         run: scons platform=windows target=template_debug arch=x86_64 -j2
         shell: pwsh
 
-      - name: Build release DLL
-        run: scons platform=windows target=template_release arch=x86_64 -j2
-        shell: pwsh
-
       - name: Package extension
         run: |
           if (!(Test-Path "addons/ps1_audio_effect/bin/ps1_audio_effect.windows.template_debug.x86_64.dll")) {
             throw "Debug DLL was not produced."
-          }
-          if (!(Test-Path "addons/ps1_audio_effect/bin/ps1_audio_effect.windows.template_release.x86_64.dll")) {
-            throw "Release DLL was not produced."
           }
           Compress-Archive -Path "addons/ps1_audio_effect" -DestinationPath "ps1-audio-effect-windows-x64.zip" -Force
         shell: pwsh
