@@ -4,7 +4,6 @@
 #include <godot_cpp/classes/audio_effect.hpp>
 #include <godot_cpp/classes/audio_effect_instance.hpp>
 #include <godot_cpp/classes/audio_frame.hpp>
-#include <godot_cpp/classes/audio_server.hpp>
 #include <godot_cpp/core/class_db.hpp>
 
 #include <cstdint>
@@ -19,32 +18,13 @@ class PS1AudioEffectInstance : public AudioEffectInstance {
     friend class PS1AudioEffect;
 
     Ref<PS1AudioEffect> base;
-    int bit_depth = 10;
-    float target_sample_rate = 22050.0f;
-    float low_pass_hz = 10000.0f;
-    float drive = 1.15f;
-    bool enabled = true;
-
-    float mix_rate = 44100.0f;
-    float low_pass_alpha = 1.0f;
-    float quantization_levels = 511.0f;
-    double sample_phase = 0.0;
-
-    float filter_left = 0.0f;
-    float filter_right = 0.0f;
-    float held_left = 0.0f;
-    float held_right = 0.0f;
 
 protected:
     static void _bind_methods();
 
 public:
-    void configure(int p_bit_depth, float p_sample_rate, float p_low_pass_hz,
-            float p_drive, bool p_enabled, float p_mix_rate);
-
     void _process(const void *p_src_buffer, AudioFrame *p_dst_buffer,
             int32_t p_frame_count) override;
-    bool _process_silence() const override;
 };
 
 class PS1AudioEffect : public AudioEffect {
