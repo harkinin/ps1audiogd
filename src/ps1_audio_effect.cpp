@@ -44,7 +44,6 @@ void PS1AudioEffectInstance::configure(int p_bit_depth, float p_sample_rate,
         low_pass_alpha = 1.0f - std::exp(-6.28318530718f * low_pass_hz / mix_rate);
     }
 
-    // Capture the first input sample immediately.
     sample_phase = mix_rate;
     filter_left = 0.0f;
     filter_right = 0.0f;
@@ -58,7 +57,15 @@ bool PS1AudioEffectInstance::_process_silence() const {
 
 void PS1AudioEffectInstance::_process(const void *p_src_buffer,
         AudioFrame *p_dst_buffer, int32_t p_frame_count) {
-    if (p_src_buffer == nullptr || p_dst_buffer == nullptr || p_frame_count <= 0) {
+    if (p_dst_buffer == nullptr || p_frame_count <= 0) {
+        return;
+    }
+
+    if (p_src_buffer == nullptr) {
+        for (int32_t i = 0; i < p_frame_count; ++i) {
+            p_dst_buffer[i].left = 0.0f;
+            p_dst_buffer[i].right = 0.0f;
+        }
         return;
     }
 
@@ -77,7 +84,6 @@ void PS1AudioEffectInstance::_process(const void *p_src_buffer,
         const float input_left = source[i].left;
         const float input_right = source[i].right;
 
-        // Smooth before sample holding to tame harsh aliasing.
         filter_left += low_pass_alpha * (input_left - filter_left);
         filter_right += low_pass_alpha * (input_right - filter_right);
 
@@ -172,15 +178,18 @@ bool PS1AudioEffect::get_enabled() const {
 Ref<AudioEffectInstance> PS1AudioEffect::_instantiate() {
     Ref<PS1AudioEffectInstance> instance;
     instance.instantiate();
-    instance->base = Ref<PS1AudioEffect>(this);
 
-    float current_mix_rate = 44100.0f;
-    if (AudioServer::get_singleton() != nullptr) {
-        current_mix_rate = static_cast<float>(AudioServer::get_singleton()->get_mix_rate());
+    if (instance.is_null()) {
+        return Ref<AudioEffectInstance>();
     }
 
+    instance->base = Ref<PS1AudioEffect>(this);
+
+    // Avoid querying AudioServer while the audio bus is constructing the instance.
+    // The effect uses the standard 44.1 kHz mix rate as a safe fallback.
     instance->configure(bit_depth, static_cast<float>(sample_rate), low_pass_hz,
-            drive, enabled, current_mix_rate);
+            drive, enabled, 44100.0f);
+
     return instance;
 }
 
